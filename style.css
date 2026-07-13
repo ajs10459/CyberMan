@@ -97,7 +97,7 @@
   #crosshair::after { transform:translate(-50%, -50%) rotate(90deg); }
 
   #hudMessage {
-    position:fixed; top:90px; left:50%; transform:translateX(-50%);
+    position:fixed; top:156px; left:50%; transform:translateX(-50%);
     z-index:12; pointer-events:none; color:#d2e8ff; font-size:12px;
     background:rgba(7, 4, 17, 0.72); border:1px solid rgba(56,244,255,0.22);
     border-radius:999px; padding:8px 18px; letter-spacing:1px;

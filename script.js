@@ -441,6 +441,107 @@ function addStreetLamps() {
 addStreetLamps();
 
 // ---------------------------------------------------------------------------
+// STREET DETAIL — crosswalks, traffic lights and outer-district slum props
+// ---------------------------------------------------------------------------
+const campfires = [];
+const trafficSignals = [];
+
+function addCrosswalksAndTrafficLights() {
+  const stripeMat = new THREE.MeshBasicMaterial({ color:0xd6deef, transparent:true, opacity:.7 });
+  const poleMat = new THREE.MeshStandardMaterial({ color:0x16151b, metalness:.8, roughness:.38 });
+  for (let x = -CITY_HALF + BLOCK; x < CITY_HALF; x += BLOCK*2) {
+    for (let z = -CITY_HALF + BLOCK; z < CITY_HALF; z += BLOCK*2) {
+      // Zebra stripes across both halves of the intersection.
+      for (let i=-2; i<=2; i++) {
+        const acrossX = new THREE.Mesh(new THREE.PlaneGeometry(1.1,.52), stripeMat);
+        acrossX.rotation.x = -Math.PI/2; acrossX.position.set(x+i*1.25,.035,z-4.1); scene.add(acrossX);
+        const acrossZ = new THREE.Mesh(new THREE.PlaneGeometry(.52,1.1), stripeMat);
+        acrossZ.rotation.x = -Math.PI/2; acrossZ.position.set(x-4.1,.036,z+i*1.25); scene.add(acrossZ);
+      }
+      // A single paired signal is enough to visually read as an intersection
+      // without filling the whole city with hundreds of expensive lights.
+      if ((Math.abs(x / BLOCK) + Math.abs(z / BLOCK)) % 2 !== 0) continue;
+      for (const corner of [[4.4,4.4],[-4.4,-4.4]]) {
+        const g = new THREE.Group();
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(.09,.11,4.2,8), poleMat);
+        pole.position.y = 2.1; g.add(pole);
+        const housing = new THREE.Mesh(new THREE.BoxGeometry(.48,1.25,.4), poleMat);
+        housing.position.y = 3.5; g.add(housing);
+        const lamps = [];
+        for (const [index, color] of [[0,0xff3030],[1,0xffbb28],[2,0x35ff80]]) {
+          const material = new THREE.MeshStandardMaterial({ color, emissive:color, emissiveIntensity:index === 0 ? 1.8 : .12 });
+          const lamp = new THREE.Mesh(new THREE.SphereGeometry(.12,8,8), material);
+          lamp.position.set(0,3.85-index*.36,.215); g.add(lamp); lamps.push(material);
+        }
+        g.position.set(x+corner[0],0,z+corner[1]); scene.add(g);
+        trafficSignals.push({ lamps, phase:Math.random()*9 });
+      }
+    }
+  }
+}
+
+function addSlumProps() {
+  const dumpsterMat = new THREE.MeshStandardMaterial({ color:0x30484a, roughness:.78, metalness:.45 });
+  const lidMat = new THREE.MeshStandardMaterial({ color:0x223638, roughness:.7, metalness:.55 });
+  const wheelMat = new THREE.MeshStandardMaterial({ color:0x111217, roughness:.9 });
+  const graffitiMat = new THREE.MeshBasicMaterial({ color:0xff2fd0 });
+  for (let i=0; i<105; i++) {
+    let x=0, z=0, tries=0;
+    do { x=rand(-CITY_HALF+12,CITY_HALF-12); z=rand(-CITY_HALF+12,CITY_HALF-12); tries++; }
+    while ((Math.hypot(x,z) < 142 || isInsideBuilding(x,z)) && tries < 24);
+    const g = new THREE.Group();
+    const bin = new THREE.Mesh(new THREE.BoxGeometry(1.7,1.15,.82), dumpsterMat);
+    bin.position.y=.62; bin.castShadow=bin.receiveShadow=true; g.add(bin);
+    const lid = new THREE.Mesh(new THREE.BoxGeometry(1.78,.12,.88), lidMat);
+    lid.position.set(0,1.23,-.03); lid.rotation.x=rand(-.16,.13); g.add(lid);
+    for (const wheelX of [-.63,.63]) {
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.12,8), wheelMat);
+      wheel.rotation.z=Math.PI/2; wheel.position.set(wheelX,.13,.3); g.add(wheel);
+    }
+    if (Math.random() < .62) {
+      const tag = new THREE.Mesh(new THREE.PlaneGeometry(.75,.24), graffitiMat);
+      tag.position.set(0,.72,.421); g.add(tag);
+    }
+    g.position.set(x,0,z); g.rotation.y=rand(0,Math.PI*2); scene.add(g);
+  }
+  for (let i=0; i<42; i++) {
+    let x=0, z=0, tries=0;
+    do {
+      const angle=rand(0,Math.PI*2), radius=rand(148,CITY_HALF-18);
+      x=Math.cos(angle)*radius; z=Math.sin(angle)*radius; tries++;
+    } while (isInsideBuilding(x,z) && tries < 20);
+    const g = new THREE.Group();
+    const logMat = new THREE.MeshStandardMaterial({ color:0x2b1710, roughness:.95 });
+    for (const rot of [0,Math.PI/2]) {
+      const log = new THREE.Mesh(new THREE.CylinderGeometry(.11,.14,1.35,7), logMat);
+      log.rotation.z=Math.PI/2; log.rotation.y=rot; log.position.y=.14; g.add(log);
+    }
+    const flameMat = new THREE.MeshBasicMaterial({ color:0xff6b25, transparent:true, opacity:.9 });
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(.44,1.35,7), flameMat);
+    flame.position.y=.78; g.add(flame);
+    const glow = new THREE.PointLight(0xff6125,2.2,12); glow.position.y=.8; g.add(glow);
+    g.position.set(x,0,z); scene.add(g);
+    campfires.push({ flame, glow, phase:Math.random()*Math.PI*2 });
+  }
+}
+
+function updateStreetProps(elapsed) {
+  for (const fire of campfires) {
+    const flicker=.82+Math.sin(elapsed*11+fire.phase)*.18+Math.sin(elapsed*17+fire.phase)*.08;
+    fire.flame.scale.set(.9*flicker, flicker, .9*flicker);
+    fire.glow.intensity=2.1*flicker;
+  }
+  for (const signal of trafficSignals) {
+    const phase=(elapsed+signal.phase)%9;
+    const active=phase<4 ? 0 : phase<5 ? 1 : 2;
+    signal.lamps.forEach((lamp,index) => lamp.emissiveIntensity=index===active ? 1.9 : .1);
+  }
+}
+
+addCrosswalksAndTrafficLights();
+addSlumProps();
+
+// ---------------------------------------------------------------------------
 // PEDESTRIANS — simple capsule NPCs wandering the sectors, denser in slums
 // ---------------------------------------------------------------------------
 const pedestrians = [];
@@ -701,7 +802,15 @@ function loadPedestrianModel(url, gender) {
   const loader = new THREE.FBXLoader();
   loader.load(url, template => {
     template.updateMatrixWorld(true);
+    // Two named showcase walkers are placed on the clear spawn plaza so the
+    // imported assets are visible immediately in every run.
+    const showcasePos = gender === 'woman' ? new THREE.Vector3(5, 0, 4) : new THREE.Vector3(-5, 0, 4);
+    const showcase = createPedestrian(showcasePos.x, showcasePos.z, gender);
+    showcase.userData.home.copy(showcasePos);
+    showcase.userData.roam = 4;
+    replaceWithFBXPedestrian(showcase, template, gender, 0);
     const candidates = pedestrians.filter(p => p.userData.gender === gender && !p.userData.isQuestTarget)
+      .filter(p => p !== showcase)
       .sort((a, b) => a.position.lengthSq() - b.position.lengthSq())
       .slice(0, MODELLED_PEDESTRIANS_PER_GENDER);
     candidates.forEach((pedestrian, index) => replaceWithFBXPedestrian(pedestrian, template, gender, index));
@@ -765,7 +874,7 @@ function generateVehicles() {
 generateVehicles();
 // A parked vehicle guarantees that the driving mechanic can be found right
 // after the opening sequence.
-createVehicle(7, -4, 'z', 0, 0xff2fd0);
+createVehicle(2, -2, 'z', 0, 0xff2fd0);
 
 // ---------------------------------------------------------------------------
 // WAREHOUSE (endgame target in world)
@@ -1475,6 +1584,7 @@ function animate() {
   updateBullets(dt);
   updatePlayerShots(dt);
   updateCrashCutscene(dt);
+  updateStreetProps(clock.elapsedTime);
   updateWaypoint();
   if (mapVisible) drawMap();
   renderer.render(scene, camera);
