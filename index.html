@@ -1,42 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYBER MAN</title>
-
-    <link rel="stylesheet" href="style.css">
-
-    <!-- Three.js -->
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.166.1/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.166.1/examples/jsm/"
-        }
-    }
-    </script>
+<meta charset="UTF-8">
+<title>CYBERMAN — Neo-Vanguard</title>
+<base href="./">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div id="loading">
-    <h1>CYBER MAN</h1>
-    <p>Loading Neo-City...</p>
+<div id="loading">BOOTING NEO-VANGUARD UPLINK...</div>
+
+<div id="intro" style="display:none;">
+  <h2>CYBERMAN</h2>
+  <h1>THE DESCENT</h1>
+  <p>
+    A sudden emergency landing strands you in <b style="color:#ff2fd0;">Neo-Vanguard</b> — a breathtaking,
+    suffocating metropolis of towering neon monoliths and smog-choked slums, where megacorporations
+    treat the poor like disposable currency. What began as a layover has become an awakening.
+    <br><br>
+    The traveler you were is dead. Step into the underworld.
+  </p>
+  <div class="go">CLICK TO BEGIN</div>
 </div>
 
-<div id="hud">
-    <div id="title">Cyber Man</div>
-    <div id="controls">
-        WASD / Arrow Keys — Move<br>
-        Shift — Sprint<br>
-        Hold Right Mouse — Rotate Camera
-    </div>
+<div id="hud" style="display:none;">
+  <div id="titleBlock">
+    <h1>CYBERMAN</h1>
+    <p>NEO-VANGUARD // THE DESCENT</p>
+  </div>
+  <div id="district">
+    <div class="label">CURRENT SECTOR</div>
+    <div id="districtName">—</div>
+  </div>
+  <div id="controls">
+    <b>WASD</b> / <b>ARROW KEYS</b> — move / drive &nbsp;&nbsp; <b>RIGHT-CLICK + DRAG</b> — rotate camera<br>
+    <b>E</b> — enter or exit car &nbsp;&nbsp; <b>SCROLL</b> — zoom &nbsp;&nbsp; <b>LEFT-CLICK</b> — fire at cursor.
+  </div>
+  <div id="crosshairInfo">POP. DENSITY: CRITICAL<br>AIR QUALITY: TOXIC</div>
+  <div id="crosshair"></div>
+  <div id="hudMessage">NEO-VANGUARD SECTOR ONLINE</div>
+  <div id="healthBar" title="Health">
+    <div id="healthFill"></div>
+  </div>
+  <div id="questPanel">
+    <div class="quest-kicker">ACTIVE CONTRACT</div>
+    <div id="questTitle">INITIALIZING...</div>
+    <div id="questObjective"></div>
+  </div>
+  <div id="map" style="display:none;">
+    <canvas id="mapCanvas" width="320" height="320"></canvas>
+    <div id="mapHint">Press M to close map</div>
+  </div>
+  <div id="waypoint" style="display:none;">
+    <div id="waypointArrow"></div>
+    <div id="waypointLabel">OBJECTIVE</div>
+  </div>
+  <div id="soundtrackControls">
+    <button id="soundtrackToggle" type="button" aria-pressed="false">▶ SOUNDTRACK</button>
+  </div>
+  <div id="soundtrackPlayer" aria-hidden="true"></div>
 </div>
 
-<canvas id="game"></canvas>
+<div id="cutscene" style="display:none;">
+  <div id="cutsceneTitle">FLIGHT NV-07</div>
+  <div id="cutsceneText">AUTOPILOT FAILURE — ALTITUDE COLLAPSING</div>
+  <div id="cutsceneHint">THE DESCENT</div>
+</div>
 
-<script type="module" src="game.js"></script>
-
+<script src="./three.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/utils/SkeletonUtils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/FBXLoader.js"></script>
+<script src="./script.js"></script>
+<script src="https://www.youtube.com/iframe_api" async></script>
 </body>
 </html>

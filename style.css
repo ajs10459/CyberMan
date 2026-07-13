@@ -1,72 +1,139 @@
-html,body{
+  html, body { margin:0; padding:0; overflow:hidden; background:#05010a; height:100%; width:100%; font-family: 'Courier New', monospace; }
+  canvas { display:block; }
 
-    margin:0;
-    overflow:hidden;
-    background:black;
-    font-family:Arial,Helvetica,sans-serif;
-}
+  #hud {
+    position:fixed; top:0; left:0; width:100%; pointer-events:none; z-index:10;
+    color:#eafcff;
+  }
+  #titleBlock {
+    position:fixed; top:18px; left:20px; pointer-events:none;
+  }
+  #titleBlock h1 {
+    margin:0; font-size:26px; letter-spacing:4px; color:#ff2fd0;
+    text-shadow: 0 0 6px #ff2fd0, 0 0 18px #ff2fd0, 0 0 2px #fff;
+    font-weight:900;
+  }
+  #titleBlock p {
+    margin:4px 0 0 2px; font-size:11px; letter-spacing:2px; color:#38f4ff;
+    text-shadow: 0 0 6px #38f4ff;
+  }
 
-canvas{
+  #district {
+    position:fixed; top:20px; right:24px; text-align:right; pointer-events:none;
+    font-size:12px; letter-spacing:2px; color:#ffd23f;
+    text-shadow: 0 0 8px #ffd23f;
+    max-width:260px;
+  }
+  #district .label { font-size:10px; color:#7fffd4; text-shadow:0 0 6px #7fffd4; }
 
-    display:block;
-}
+  #controls {
+    position:fixed; bottom:16px; left:20px; pointer-events:none;
+    font-size:11px; line-height:1.6; color:#b9f8ff; background:rgba(5,2,15,0.55);
+    border:1px solid rgba(56,244,255,0.35); border-radius:6px; padding:10px 14px;
+    box-shadow: 0 0 14px rgba(56,244,255,0.2);
+    letter-spacing:1px;
+  }
+  #controls b { color:#ff2fd0; }
 
-#loading{
+  #crosshairInfo {
+    position:fixed; bottom:16px; right:24px; pointer-events:none;
+    font-size:11px; color:#ff7ae8; text-align:right; letter-spacing:1px;
+    text-shadow:0 0 6px #ff2fd0;
+  }
 
-    position:absolute;
-    inset:0;
+  #crosshair {
+    position:fixed; top:50%; left:50%; width:28px; height:28px;
+    margin:-14px 0 0 -14px; pointer-events:none; z-index:9;
+    border:2px solid rgba(255, 47, 208, 0.85); border-radius:50%;
+    box-shadow: 0 0 14px rgba(255, 47, 208, 0.45);
+  }
+  #healthBar {
+    position:fixed; left:50%; transform:translateX(-50%); bottom:84px; width:260px; height:12px;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); border-radius:6px; overflow:hidden; z-index:11;
+  }
+  #healthFill {
+    height:100%; width:100%; background:linear-gradient(90deg,#ff2fd0,#38f4ff); transform-origin:left; transform:scaleX(1);
+  }
+  #questPanel {
+    position:fixed; left:20px; top:100px; width:300px; padding:11px 13px;
+    background:rgba(7,4,17,.76); border-left:3px solid #ff2fd0;
+    box-shadow:0 0 16px rgba(255,47,208,.18); letter-spacing:.8px;
+  }
+  .quest-kicker { font-size:10px; color:#7fffd4; margin-bottom:5px; }
+  #questTitle { color:#ffd23f; font-size:13px; font-weight:bold; }
+  #questObjective { color:#c9d6ff; font-size:11px; line-height:1.45; margin-top:5px; }
 
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
+  #map {
+    position:fixed; right:20px; top:20px; width:320px; height:360px; z-index:200; pointer-events:auto;
+    background:linear-gradient(180deg, rgba(8,6,12,0.95), rgba(6,4,10,0.95)); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:8px; box-sizing:border-box;
+  }
+  #map canvas { display:block; width:100%; height:320px; background:#06030a; border-radius:6px; }
+  #mapHint { text-align:center; color:#c9d6ff; font-size:11px; margin-top:6px; }
 
-    background:#000;
-    color:#00ffff;
+  #waypoint {
+    position:fixed; left:50%; top:76px; transform:translateX(-50%); z-index:15; pointer-events:none;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    min-width:180px; padding:6px 12px; border-radius:5px;
+    background:rgba(5,2,15,.72); border:1px solid rgba(255,210,63,.24);
+  }
+  #waypointArrow {
+    width:7px; height:23px; position:relative; box-sizing:border-box;
+    background:#ffd23f; border-radius:2px; filter:drop-shadow(0 0 6px #ffd23f);
+    transform-origin:center; transition:transform .08s linear, opacity .18s linear;
+    opacity:0.95;
+  }
+  #waypointArrow::before { content:''; position:absolute; left:50%; top:-9px; width:0; height:0; transform:translateX(-50%); border-left:10px solid transparent; border-right:10px solid transparent; border-bottom:12px solid #ffd23f; }
+  #waypointArrow::after { content:''; position:absolute; left:50%; bottom:-3px; width:13px; height:3px; transform:translateX(-50%); background:#ffd23f; border-radius:2px; }
+  #waypointLabel { color:#ffd23f; font-size:12px; text-shadow:0 0 6px #ffd23f; }
+  #soundtrackControls { position:fixed; right:20px; bottom:16px; z-index:16; pointer-events:auto; }
+  #soundtrackToggle { border:1px solid rgba(255,210,63,.62); border-radius:4px; padding:8px 11px; background:rgba(7,4,17,.78); color:#ffd23f; cursor:pointer; font:11px 'Courier New', monospace; letter-spacing:1px; box-shadow:0 0 12px rgba(255,210,63,.16); }
+  #soundtrackToggle:hover, #soundtrackToggle[aria-pressed="true"] { background:rgba(255,210,63,.16); box-shadow:0 0 16px rgba(255,210,63,.4); }
+  #soundtrackPlayer { position:fixed; width:200px; height:200px; left:-220px; bottom:-220px; overflow:hidden; opacity:0; pointer-events:none; }
+  #crosshair::before,
+  #crosshair::after {
+    content:''; position:absolute; left:50%; top:50%; width:2px; height:12px;
+    background:#ff2fd0; transform:translate(-50%, -50%);
+  }
+  #crosshair::after { transform:translate(-50%, -50%) rotate(90deg); }
 
-    z-index:100;
-}
+  #hudMessage {
+    position:fixed; top:90px; left:50%; transform:translateX(-50%);
+    z-index:12; pointer-events:none; color:#d2e8ff; font-size:12px;
+    background:rgba(7, 4, 17, 0.72); border:1px solid rgba(56,244,255,0.22);
+    border-radius:999px; padding:8px 18px; letter-spacing:1px;
+    opacity:0; transition:opacity .35s ease, transform .35s ease;
+  }
+  #hudMessage.visible { opacity:1; transform:translateX(-50%) translateY(0); }
 
-#loading h1{
+  #intro {
+    position:fixed; inset:0; z-index:100; background:radial-gradient(circle at 50% 30%, #12002a 0%, #05010a 75%);
+    color:#eafcff; display:flex; align-items:center; justify-content:center; flex-direction:column;
+    text-align:center; padding:40px; box-sizing:border-box; cursor:pointer;
+  }
+  #intro h1 {
+    font-size:56px; letter-spacing:10px; color:#ff2fd0; margin:0 0 6px 0;
+    text-shadow: 0 0 10px #ff2fd0, 0 0 40px #ff2fd0;
+    font-weight:900;
+  }
+  #intro h2 { font-size:14px; letter-spacing:8px; color:#38f4ff; text-shadow:0 0 10px #38f4ff; margin:0 0 30px 0; font-weight:400;}
+  #intro p { max-width:640px; font-size:14px; line-height:1.8; color:#c9d6ff; letter-spacing:0.5px; }
+  #intro .go {
+    margin-top:34px; font-size:13px; letter-spacing:4px; color:#ffd23f;
+    text-shadow:0 0 10px #ffd23f; animation: pulse 1.6s infinite ease-in-out;
+    border:1px solid #ffd23f; padding:12px 30px; border-radius:2px;
+  }
+  #cutscene {
+    position:fixed; inset:0; z-index:90; pointer-events:none;
+    background:linear-gradient(180deg,rgba(3,1,9,.12),rgba(3,1,9,.65));
+    color:#eafcff; font-size:13px; letter-spacing:2px;
+  }
+  #cutsceneTitle { position:absolute; top:9%; left:7%; color:#38f4ff; text-shadow:0 0 8px #38f4ff; }
+  #cutsceneText { position:absolute; left:7%; bottom:14%; color:#ff7ae8; text-shadow:0 0 8px #ff2fd0; }
+  #cutsceneHint { position:absolute; left:50%; bottom:7%; transform:translateX(-50%); color:#ffd23f; font-size:11px; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
 
-    font-size:70px;
-    letter-spacing:8px;
-    color:#ff00ff;
-}
-
-#loading p{
-
-    color:white;
-}
-
-#hud{
-
-    position:absolute;
-
-    top:15px;
-    left:15px;
-
-    color:white;
-
-    z-index:5;
-}
-
-#title{
-
-    font-size:30px;
-    color:#00ffff;
-    margin-bottom:10px;
-}
-
-#controls{
-
-    background:rgba(0,0,0,.55);
-
-    padding:12px;
-
-    border:1px solid cyan;
-
-    border-radius:10px;
-
-    line-height:1.5;
-}
+  #loading {
+    position:fixed; inset:0; z-index:5; background:#05010a; color:#38f4ff;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    letter-spacing:4px;
+  }
